@@ -173,3 +173,4 @@ def store_billboard_data(db_name):
 # -------------------------------------------------------------------
 if __name__ == "__main__":
     store_billboard_data("final_project.db")
+    
