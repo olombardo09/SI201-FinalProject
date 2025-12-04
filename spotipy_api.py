@@ -159,3 +159,4 @@ def enrich_songs(db_name="final_project.db"):
 # --------------------------------------------------------------------
 if __name__ == "__main__":
     enrich_songs("final_project.db")
+    
