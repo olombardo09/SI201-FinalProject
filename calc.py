@@ -7,9 +7,7 @@ def calculate_avg_duration(conn):
     cur.execute("""
         SELECT AVG(spotify_duration_ms)
         FROM songs
-    """)
-
-    # Get the average
+                """)
     result = cur.fetchone()[0]
     return result
 
@@ -92,45 +90,39 @@ def top_album_frequency(conn):
     return result
 
 # ------------------------------------------------------------
-# Write output into a file
+# Write each output into individual files
 # ------------------------------------------------------------
-def write_all_outputs(avg_ms, avg_plays, avg_listeners, artist_playcounts, avg_artist_ranks, artist_freq, album_freq, filename="all_results.csv"):
+def write_artist_playcounts(results, filename="artist_playcounts.csv"):
     with open(filename, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
+        writer.writerow(["artist", "total_playcount"])
+        writer.writerows(results)
 
-        # Write headers
-        writer.writerow(["Metric", "Value"])
+def write_avg_artist_ranks(results, filename="avg_artist_ranks.csv"):
+    with open(filename, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(["artist", "avg_rank"])
+        writer.writerows(results)
 
-        # Single-value metrics
+def write_artist_frequency(results, filename="artist_frequency.csv"):
+    with open(filename, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(["artist", "frequency"])
+        writer.writerows(results)
+
+def write_album_frequency(results, filename="album_frequency.csv"):
+    with open(filename, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(["album", "frequency"])
+        writer.writerows(results)
+
+def write_summary(avg_ms, avg_plays, avg_listeners, filename="summary_stats.csv"):
+    with open(filename, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(["metric", "value"])
         writer.writerow(["average_track_duration_ms", avg_ms])
         writer.writerow(["average_playcount", avg_plays])
-        writer.writerow(["average_lisenters", avg_listeners])
-
-        # Artist Playcounts (Top 15)
-        writer.writerow([])
-        writer.writerow(["Top Artists by Total Playcount"])
-        writer.writerow(["artist", "total_playcount"])
-        writer.writerows(artist_playcounts)
-
-        # Average Rank
-        writer.writerow([])
-        writer.writerow(["Top Artists by Average Rank"])
-        writer.writerow(["artist", "avg_rank"])
-        writer.writerows(avg_artist_ranks)
-
-        # Artist Frequency
-        writer.writerow([])
-        writer.writerow(["Artist Frequency in Hot 100"])
-        writer.writerow(["artist", "frequency"])
-        writer.writerows(artist_freq)
-
-        # Album Frequency
-        writer.writerow([])
-        writer.writerow(["Album Frequency in Hot 100"])
-        writer.writerow(["album", "frequency"])
-        writer.writerows(album_freq)
-
-    print(f"Saved results to {filename}")
+        writer.writerow(["average listeners", {avg_listeners}])
 
 # ------------------------------------------------------------
 # Run script
@@ -153,5 +145,9 @@ if __name__ == "__main__":
     # print(f'\n Average Billboard Rank Per Artist: {avg_artist_ranks}')
     # print(f'\n Artist Frequency in the Billboard Hot 100: {artist_freq}')
     # print(f'\n Album Frequency in the Billboard Hot 100: {album_freq}')
-    write_all_outputs(avg_ms, avg_plays, avg_listeners, artist_playcounts, avg_artist_ranks, artist_freq, album_freq, filename="all_results.csv")
     
+    write_summary(avg_ms, avg_plays, avg_listeners)
+    write_artist_playcounts(artist_playcounts)
+    write_avg_artist_ranks(avg_artist_ranks)
+    write_artist_frequency(artist_freq)
+    write_album_frequency(album_freq)
