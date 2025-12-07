@@ -4,6 +4,7 @@ import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import time
 
+
 # --------------------------------------------------------------------
 # SPOTIFY AUTH
 # --------------------------------------------------------------------
@@ -16,6 +17,7 @@ sp = spotipy.Spotify(
         client_secret=CLIENT_SECRET
     )
 )
+
 
 # --------------------------------------------------------------------
 # Ensure songs + albums tables have proper columns
@@ -38,7 +40,9 @@ def ensure_schema(cur):
         "spotify_track_id TEXT",
         "spotify_track_popularity INTEGER",
         "spotify_duration_ms INTEGER",
-        "album_id INTEGER"
+        "album_id INTEGER",
+        "spotify_explicit INTEGER",
+        "spotify_release_year INTEGER"
     }
 
     for col_def in required:
@@ -46,6 +50,7 @@ def ensure_schema(cur):
         if name not in existing_cols:
             print(f"Adding column to songs: {name}")
             cur.execute(f"ALTER TABLE songs ADD COLUMN {col_def}")
+
 
 # --------------------------------------------------------------------
 # Spotify Track Search
@@ -59,6 +64,7 @@ def fetch_spotify_track(title, artist):
     except Exception as e:
         print(f"Error searching Spotify for {title} by {artist}: {e}")
         return None
+
 
 # --------------------------------------------------------------------
 # Insert album if needed, return album_id
@@ -78,6 +84,7 @@ def get_or_create_album(cur, album):
     row = cur.fetchone()
     return row[0]
 
+
 # --------------------------------------------------------------------
 # Update a song row with Spotify track & album info
 # --------------------------------------------------------------------
@@ -88,7 +95,9 @@ def update_song(cur, song_id, track_info):
             SET spotify_track_id = NULL,
                 spotify_track_popularity = NULL,
                 spotify_duration_ms = NULL,
-                album_id = NULL
+                album_id = NULL,
+                spotify_explicit = NULL,
+                spotify_release_year = NULL
             WHERE song_id = ?
         """, (song_id,))
         return
@@ -96,19 +105,38 @@ def update_song(cur, song_id, track_info):
     track_id = track_info["id"]
     popularity = track_info["popularity"]
     duration = track_info["duration_ms"]
+    explicit_flag = 1 if track_info["explicit"] else 0
 
     # Minimal album info
     album_info = track_info["album"]
     album_id = get_or_create_album(cur, album_info)
+
+    # Extract release year from album release date
+    release_date = album_info.get("release_date")
+    if release_date:
+        release_year = int(release_date[:4])
+    else:
+        release_year = None
 
     cur.execute("""
         UPDATE songs
         SET spotify_track_id = ?,
             spotify_track_popularity = ?,
             spotify_duration_ms = ?,
-            album_id = ?
+            album_id = ?,
+            spotify_explicit = ?,
+            spotify_release_year = ?
         WHERE song_id = ?
-    """, (track_id, popularity, duration, album_id, song_id))
+    """, (
+        track_id,
+        popularity,
+        duration,
+        album_id,
+        explicit_flag,
+        release_year,
+        song_id
+    ))
+
 
 # --------------------------------------------------------------------
 # MAIN — Up to 25 songs per run
@@ -159,4 +187,3 @@ def enrich_songs(db_name="final_project.db"):
 # --------------------------------------------------------------------
 if __name__ == "__main__":
     enrich_songs("final_project.db")
-    
