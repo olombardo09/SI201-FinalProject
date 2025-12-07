@@ -122,7 +122,7 @@ def write_summary(avg_ms, avg_plays, avg_listeners, filename="summary_stats.csv"
         writer.writerow(["metric", "value"])
         writer.writerow(["average_track_duration_ms", avg_ms])
         writer.writerow(["average_playcount", avg_plays])
-        writer.writerow(["average listeners", {avg_listeners}])
+        writer.writerow(["average listeners", avg_listeners])
 
 # ------------------------------------------------------------
 # Run script
