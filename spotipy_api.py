@@ -4,7 +4,6 @@ import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import time
 
-
 # --------------------------------------------------------------------
 # SPOTIFY AUTH
 # --------------------------------------------------------------------
@@ -17,7 +16,6 @@ sp = spotipy.Spotify(
         client_secret=CLIENT_SECRET
     )
 )
-
 
 # --------------------------------------------------------------------
 # Ensure songs + albums tables have proper columns
