@@ -21,7 +21,7 @@ def top_15_artist(filename):
     
     top_artists_sorted = sorted(top_artists, key=lambda x: x[1], reverse=False)[:15]
     artists, counts = zip(*top_artists_sorted)
-    counts = [int(c) for c in counts]   # ensure numeric
+    counts = [int(c) for c in counts]
 
     plt.barh(artists, counts, color=colors)
     plt.xlim(0, max(counts) + 1)
