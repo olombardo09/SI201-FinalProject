@@ -49,7 +49,6 @@ def ensure_schema(cur):
             print(f"Adding column to songs: {name}")
             cur.execute(f"ALTER TABLE songs ADD COLUMN {col_def}")
 
-
 # --------------------------------------------------------------------
 # Spotify Track Search
 # --------------------------------------------------------------------
@@ -62,7 +61,6 @@ def fetch_spotify_track(title, artist):
     except Exception as e:
         print(f"Error searching Spotify for {title} by {artist}: {e}")
         return None
-
 
 # --------------------------------------------------------------------
 # Insert album if needed, return album_id
